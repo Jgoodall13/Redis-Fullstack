@@ -16,13 +16,7 @@ function App() {
   return (
     <>
       <h1>React App</h1>
-      <ul>
-        {Object.keys(data).map((key) => (
-          <li key={key}>
-            <strong>{key}</strong>: {data[key]}
-          </li>
-        ))}
-      </ul>
+      <ul></ul>
     </>
   );
 }

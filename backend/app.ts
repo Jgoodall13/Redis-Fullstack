@@ -1,36 +1,35 @@
-import express from "express";
-import { createClient } from "redis";
-import dotenv from "dotenv";
-import cors from "cors";
+import express, { Request, Response, Application } from "express";
+import { connectRedis, client } from "./src/config/redisClient"; // Updated import
+import { setupMiddlewares } from "./src/middlewares/setupMiddlewares";
+import authRoutes from "./src/routes/auth";
 
-dotenv.config();
-const app = express();
-app.use(cors());
+const app: Application = express();
 
-const client = createClient({
-  username: "default",
-  password: process.env.REDIS_PASS,
-  socket: {
-    host: "redis-13327.c12.us-east-1-4.ec2.redns.redis-cloud.com",
-    port: 13327,
-  },
+// Apply middlewares
+setupMiddlewares(app);
+
+// Connect to Redis
+connectRedis();
+
+app.get("/", async (req: Request, res: Response) => {
+  console.log("in test routeß");
+  try {
+    const message = await client.get("message");
+    res.send({ message });
+  } catch (error) {
+    console.error("Error fetching message:", error);
+    res.status(500).send({ message: "Internal server error" });
+  }
 });
 
-client.on("error", (err: any) => console.log("Redis Client Error", err));
+// Routes
+app.use("/auth", authRoutes);
 
-client.connect().then(async () => {
-  await client.set("foo", "DB connected");
-  const result = await client.get("foo");
-  console.log(result); // >>> bar
+// Graceful shutdown
+process.on("SIGINT", async () => {
+  await client.quit();
+  console.log("Redis client disconnected");
+  process.exit(0);
 });
 
-app.get("/", async (req, res) => {
-  const message = await client.get("message");
-  res.send({ message });
-});
-
-const PORT = 3000;
-
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`);
-});
+export default app;
