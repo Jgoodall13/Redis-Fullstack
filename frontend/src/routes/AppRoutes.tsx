@@ -15,7 +15,6 @@ function AppRoutes() {
   return (
     <Router>
       <Routes>
-        {/* If user is logged in, redirect from /login and /register to /dashboard */}
         <Route
           path="/login"
           element={
@@ -32,16 +31,12 @@ function AppRoutes() {
             )
           }
         />
-
-        {/* Protected route for dashboard */}
         <Route
           path="/dashboard"
           element={
             isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
           }
         />
-
-        {/* Catch-all route for bad paths */}
         <Route
           path="*"
           element={

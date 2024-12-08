@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../store/AuthContext";
+import { useMutation } from "@tanstack/react-query";
 
 export default function Login() {
   const emailInput = useRef<HTMLInputElement | null>(null);
@@ -8,7 +9,29 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
+  // Define the mutation function
+  const loginMutation = useMutation({
+    mutationFn: async (credentials: { email: string; password: string }) => {
+      const response = await fetch("http://localhost:3000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to login");
+      }
+      return response.json();
+    },
+    onSuccess: (data) => {
+      login(data.accessToken); // Save the token in context/localStorage
+      navigate("/dashboard"); // Navigate to dashboard
+    },
+    onError: (error) => {
+      console.error("Login failed:", error);
+    },
+  });
+
+  const handleSubmit = () => {
     const email = emailInput.current?.value || "";
     const password = passwordInput.current?.value || "";
 
@@ -17,23 +40,7 @@ export default function Login() {
       return;
     }
 
-    try {
-      const response = await fetch("http://localhost:3000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      if (response.ok && data.accessToken) {
-        login(data.accessToken);
-        navigate("/dashboard");
-      } else {
-        console.error("Login failed:", data.message || "Unknown error");
-      }
-    } catch (error) {
-      console.error("Error during login:", error);
-    }
+    loginMutation.mutate({ email, password });
   };
 
   return (
@@ -56,8 +63,9 @@ export default function Login() {
         <button
           onClick={handleSubmit}
           className="bg-cyan-500 text-white p-1 hover:bg-cyan-800"
+          disabled={loginMutation.isLoading}
         >
-          Login
+          {loginMutation.isLoading ? "Logging in..." : "Login"}
         </button>
       </div>
     </div>

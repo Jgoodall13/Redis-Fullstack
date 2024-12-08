@@ -1,3 +1,12 @@
+import { useAuth } from "../store/AuthContext";
+
 export default function Dashboard() {
-  return <div>Dashboard</div>;
+  const { logout } = useAuth();
+
+  return (
+    <>
+      <div>Dashboard</div>
+      <button onClick={logout}>Logout</button>
+    </>
+  );
 }
