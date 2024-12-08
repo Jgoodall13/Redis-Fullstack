@@ -1,24 +1,11 @@
-import { useEffect, useState } from "react";
 import "./App.css";
+import AppRoutes from "./routes/AppRoutes";
+import { AuthProvider } from "./store/AuthContext";
 
-function App() {
-  const [data, setData] = useState({});
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch("http://localhost:3000/");
-      const data = await response.json();
-      console.log(data);
-      setData(data);
-    };
-    fetchData();
-  }, []);
-
+export default function App() {
   return (
-    <>
-      <h1>React App</h1>
-      <ul></ul>
-    </>
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }
-
-export default App;

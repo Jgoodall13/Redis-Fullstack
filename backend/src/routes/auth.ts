@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { createUser } from "../controllers/authController";
+import { createUser, loginUser } from "../controllers/authController";
+import { l } from "vite/dist/node/types.d-aGj9QkWt";
 
 const router = Router();
 
@@ -9,5 +10,6 @@ const router = Router();
  * @access Public
  */
 router.post("/register", createUser);
+router.post("/login", loginUser);
 
 export default router;

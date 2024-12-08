@@ -5,6 +5,10 @@ import authRoutes from "./src/routes/auth";
 
 const app: Application = express();
 
+//TODO: login and register pages that takes you to protected route.
+//Use react query
+//use tailwind
+
 // Apply middlewares
 setupMiddlewares(app);
 
@@ -14,8 +18,7 @@ connectRedis();
 app.get("/", async (req: Request, res: Response) => {
   console.log("in test routeß");
   try {
-    const message = await client.get("message");
-    res.send({ message });
+    res.send({ message: "jambo beans" });
   } catch (error) {
     console.error("Error fetching message:", error);
     res.status(500).send({ message: "Internal server error" });
